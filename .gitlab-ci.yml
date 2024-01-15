@@ -1,0 +1,30 @@
+# Stages
+stages:
+  - cluster
+  - config
+
+# Function for extends these options
+.trigger:
+  trigger:
+    include: $ENVIRONMENT/.gitlab-ci.yml
+  # Only triggered if merge request is created
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+# Step that runs cluster infrastructure in DO
+cluster:
+  # Extending function
+  extends: .trigger
+  # Determine which stage the job will run
+  stage: cluster
+  variables:
+    ENVIRONMENT: k8s-cluster
+
+# Step that runs cluster setting in DO
+config_plan:
+  # Extending function
+  extends: .trigger
+  # Determine which stage the job will run
+  stage: config
+  variables:
+    ENVIRONMENT: k8s-config

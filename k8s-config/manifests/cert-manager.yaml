@@ -1,0 +1,67 @@
+global:
+  podSecurityPolicy:
+    enabled: false
+    useAppArmor: false
+  logLevel: 2
+tolerations:
+  - key: "ctfd"
+    value: "true"
+    effect: "NoSchedule"
+installCRDs: true
+replicaCount: 1
+prometheus:
+  enabled: false
+podDnsPolicy: "None"
+podDnsConfig:
+  nameservers:
+    - "1.1.1.1"
+    - "8.8.8.8"
+resources:
+  limits:
+    cpu: 100m
+    memory: 250Mi
+  requests:
+    cpu: 100m
+    memory: 250Mi
+webhook:
+  replicaCount: 1
+  timeoutSeconds: 10
+  securePort: 10250
+  resources:
+    limits:
+      cpu: 50m
+      memory: 40Mi
+    requests:
+      cpu: 50m
+      memory: 40Mi
+  tolerations:
+    - key: "ctfd"
+      value: "true"
+      effect: "NoSchedule"
+cainjector:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 250Mi
+    requests:
+      cpu: 100m
+      memory: 250Mi
+  tolerations:
+    - key: "ctfd"
+      value: "true"
+      effect: "NoSchedule"
+startupapicheck:
+  enabled: true
+  resources:
+    limits:
+      cpu: 10m
+      memory: 32Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+  tolerations:
+    - key: "ctfd"
+      value: "true"
+      effect: "NoSchedule"

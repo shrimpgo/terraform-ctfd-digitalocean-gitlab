@@ -1,0 +1,57 @@
+<!-- Essa página é inclusa via plataforma como a index padrão:
+     - Colocar a imagem da logo do evento em: infra/theme/static/img/bhack.png
+     - Colocar a imagem do favicon do evento: infra/theme/static/img/favicon.ico
+     - Substituir no código abaixo e incluí-lo
+-->
+<script>
+  // Set the date we're counting down to
+  var ctfStart = new Date("{{ ctf_start }}").getTime();
+  var countDownDate = new Date("{{ ctf_end }}").getTime();
+
+  // Update the count down every 1 second
+  var x = setInterval(function () {
+    // Get today's date and time
+    var now = new Date().getTime();
+
+    // Find the distance between now and the count down date
+    var distance = countDownDate - now;
+
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor(
+      (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    if (now >= ctfStart) {
+      document.getElementById("remaining").innerHTML = "Tempo Restante: " +
+          days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+    } else if (distance < 0) {
+      clearInterval(x);
+      document.getElementById("remaining").innerHTML = "CTF Finalizado!";
+    } else {
+      document.getElementById("remaining").innerHTML = "CTF Não iniciado!";
+    }
+
+
+  }, 1000);
+</script>
+<div class="home" style="font-family:Courier New,Courier,monospace">
+  <div class="col-md-6 offset-md-3">
+      <a href="https://www.bhack.com.br/" target="_blank"><img class="w-100 mx-auto d-block" style="max-width: 700px;padding: 50px;padding-top: 14vh;" src="/themes/fireshell-theme/static/img/bhack.png" /></a>
+      <h3 class="text-center">
+          <p>Bem-vindo ao <strong>{{ ctf_name }}</strong>!</p>
+      </h3>
+      <h4 class="text-center">
+          <p>Início: <span data-time="{{ ctf_start }}" data-time-format="DD/MM HH:mm"></span></p>
+          <p>Fim: <span data-time="{{ ctf_end }}" data-time-format="DD/MM HH:mm"></span><br/></p>
+      </h3>
+      <h6 class="text-center">
+        <p>Pausa: <span data-time="2023-12-01T21:00:00Z" data-time-format="DD/MM HH:mm"></span> a <span data-time="2023-12-03T11:00:00Z" data-time-format="DD/MM HH:mm"></span></p>
+      </h6>
+      <h4 class="text-center">
+        <p><span id="remaining"></span></p>
+    </h3>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+mariadb:
+  primary:
+    tolerations:
+      - key: "ctfd"
+        value: "true"
+        effect: "NoSchedule"
+    persistence:
+      enabled: true
+      existingClaim: pvc-mariadb
+      storageClass: do-block-storage-retain
+      size: 20Gi
+
+redis:
+  master:
+    tolerations:
+      - key: "ctfd"
+        value: "true"
+        effect: "NoSchedule"
+
+persistence:
+  uploads:
+    enabled: true
+    existingClaim: pvc-uploads
+    storageClass: do-block-storage-retain
+    size: 20Gi
+
+ingress:
+  enabled: true
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: bhack.fireshellsecurity.team
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-nginx
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: 8m
+    nginx.ingress.kubernetes.io/server-snippet: |
+      ignore_invalid_headers on;
+      proxy_pass_header Server;
+      real_ip_header CF-Connecting-IP;
+  hosts:
+    - host: bhack.fireshellsecurity.team
+      path: "/"
+
+  tls:
+    - hosts:
+      - bhack.fireshellsecurity.team
+      secretName: ctf-tls
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+tolerations:
+  - key: "ctfd"
+    value: "true"
+    effect: "NoSchedule"

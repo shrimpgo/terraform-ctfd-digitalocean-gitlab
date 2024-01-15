@@ -1,0 +1,4 @@
+tolerations:
+  - key: "ctfd"
+    value: "true"
+    effect: "NoSchedule"

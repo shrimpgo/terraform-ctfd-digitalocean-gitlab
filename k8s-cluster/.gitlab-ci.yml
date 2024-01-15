@@ -1,0 +1,107 @@
+# Image container for running jobs
+image:
+  name: hashicorp/terraform:light
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+# Global variables
+variables:
+  TF_DESTROY: "true" # Change to "true" if you need to destroy the infrastructure
+  PLAN: plan.cache
+  JSON_PLAN_FILE: plan.json
+  TF_IN_AUTOMATION: "true" # Option in Terraform that will be triggered by git
+  GITLAB_TF_ADDRESS: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/terraform/state/cluster # State file
+  TF_ROOT: ${CI_PROJECT_DIR}/k8s-cluster # Root folder from cluster settings
+
+# Cache for Terraform settings
+cache:
+  key: "$CI_COMMIT_SHA"
+  paths:
+    - ${TF_ROOT}/.terraform
+
+# Before running any job, run the commands below
+before_script:
+  - terraform --version
+  - cd ${TF_ROOT}
+  # Initialize Terraform, downloading all of prerequisites for applying .tf files
+  - terraform init -reconfigure -backend-config="address=${GITLAB_TF_ADDRESS}" -backend-config="lock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="unlock_address=${GITLAB_TF_ADDRESS}/lock" -backend-config="username=gitlab-ci-token" -backend-config="password=${CI_JOB_TOKEN}" -backend-config="lock_method=POST" -backend-config="unlock_method=DELETE" -backend-config="retry_wait_min=5"
+
+# Stages
+stages:
+  - validate
+  - plan
+  - apply
+  - cleanup
+
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - changes:
+      - k8s-cluster/*
+    - if: $CI_OPEN_MERGE_REQUESTS  # If available in merge request pipeline, don't add it to branch pipeline
+      when: never
+    - if: $CI_COMMIT_BRANCH        # If there is no merge request, add it to branch pipeline
+
+# Check if .tf files were formatted
+fmt:
+  stage: validate
+  script:
+    - terraform fmt -check=true
+  allow_failure: true # If job fails, it doesn't fail all the pipeline
+
+# Check .tf syntax files
+validate:
+  stage: validate
+  script:
+    - terraform validate
+
+# Plan all based on .tf files
+plan production:
+  stage: plan
+  script:
+    - terraform plan -out=${PLAN}
+    - terraform show -json ${PLAN} > ${JSON_PLAN_FILE}
+  artifacts:
+    name: plan
+    paths:
+      - $PLAN
+    reports:
+      terraform: ${TF_ROOT}/${JSON_PLAN_FILE}
+  rules:
+    - if: $TF_DESTROY == "true" # If true, add "-destroy" argument in plan command
+      variables:
+        TF_CLI_ARGS_plan: "-destroy"
+      when: on_success
+    - when: always
+  resource_group: production
+
+# Apply what was planned
+apply:
+  stage: apply
+  needs:
+  - plan production
+  script:
+    - terraform apply -auto-approve
+  dependencies:
+    - plan production
+  rules:
+    - if: $TF_DESTROY == "true" # Skip this step if it's true
+      when: never
+    - when: manual # It will not run automatically
+  allow_failure: false
+  resource_group: production
+
+# Destroy all of changes made by Terraform apply earlier
+destroy:
+  stage: cleanup
+  dependencies:
+    - apply
+  script:
+    - terraform destroy -auto-approve
+  variables:
+    TF_CLI_ARGS_destroy: "${TF_PLAN_CACHE}"
+  rules:
+    - if: $TF_DESTROY == "true"
+      when: manual # It will not run automatically
+  retry: 2 # Retry twice if fail at first attempt

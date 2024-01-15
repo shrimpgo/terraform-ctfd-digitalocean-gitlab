@@ -1,0 +1,7 @@
+**/*.tfstate*
+**/.terraform/
+**/.terraform.*
+**/*plan.txt
+**/*.tfplan
+**/.terraform-version
+**/*.log

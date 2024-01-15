@@ -1,0 +1,21 @@
+provider: cloudflare
+
+policy: sync
+txtOwnerId: 6bbbf792-e4af-4913-80fa-ddcea3716b57
+domainFilters:
+  - fireshellsecurity.team.
+zoneIdFilters:
+  - cb17e662314716aa4e6f127844a67287
+
+resources:
+  limits:
+    cpu: 20m
+    memory: 50Mi
+  requests:
+    cpu: 20m
+    memory: 50Mi
+
+tolerations:
+  - key: "ctfd"
+    value: "true"
+    effect: "NoSchedule"

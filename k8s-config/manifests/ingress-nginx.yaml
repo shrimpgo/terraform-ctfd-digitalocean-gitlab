@@ -1,0 +1,24 @@
+# Permite que a api-resource do Kubernetes possa publicar o acesso
+controller:
+  # Número de réplicas
+  replicaCount: 3
+  publishService:
+    enabled: true
+  # Permite que os ingress resources possam adicionar configurações extras no nginx (snippets)
+  allowSnippetAnnotations: true
+  # Habilita a opção que define qual header será o IP de origem
+  config:
+    enable-real-ip: true
+  # Preserva o source IP do NodePort setup
+  service:
+    externalTrafficPolicy: Local
+  tolerations:
+    - key: "ctfd"
+      value: "true"
+      effect: "NoSchedule"
+  admissionWebhooks:
+    patch:
+      tolerations:
+        - key: "ctfd"
+          value: "true"
+          effect: "NoSchedule"

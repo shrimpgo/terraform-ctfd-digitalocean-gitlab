@@ -1,0 +1,21 @@
+body {
+    background: rgb(130,130,130);
+    background-image: linear-gradient(306deg, rgb(23, 25, 26) 0%, rgb(29, 31, 32) 16%, rgb(46, 37, 37) 43%, rgb(127, 129, 129) 100%), url('/themes/fireshell/static/img/bg-body.png'), url("/themes/fireshell/static/img/binario-fundo.png"), url("/themes/fireshell/static/img/caveira-home.jpg");
+    background-size: cover;
+    mix-blend-mode: screen;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-blend-mode: soft-light;
+    scroll-behavior: smooth;
+}
+
+.home {
+    background-size: contain;
+    background-repeat: no-repeat;  
+}
+
+.jumbotron {
+    padding:2rem 1rem !important;
+}
+   
