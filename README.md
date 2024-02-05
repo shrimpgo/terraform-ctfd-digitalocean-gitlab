@@ -29,4 +29,4 @@ All those steps will be triggered only by creating a new branch (based on main) 
 
 # Instructions
 
-All the code was commented out explaining what every single line means.
+All the code was commented out explaining what every single line mean.
